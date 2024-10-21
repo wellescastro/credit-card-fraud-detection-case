@@ -21,9 +21,6 @@ The overall architecture of the project is illustrated in the following diagram:
 - Docker
 - Docker Compose
 - uv package manager
-```
-pip install uv
-```
 
 ## Data
 

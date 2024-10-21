@@ -1,4 +1,4 @@
 *.local
 .mypy_cache
 mlruns/
-package_repository/
+package_repository/*.whl
