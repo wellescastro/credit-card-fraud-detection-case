@@ -71,14 +71,15 @@ async def predict_fraud(request: PredictionRequest):
         input_df = pd.DataFrame([input_data])
 
         prediction_proba = loaded_model.predict_proba(input_df)
+        prediction_class = loaded_model.predict(input_df)
 
         fraud_probability = float(prediction_proba[0][1])
+        fraud_prediction = bool(prediction_class[0])
 
         prediction_time = time.time() - start_time
 
         return {
-            "is_fraud": False if fraud_probability <= 0.5 else True,
-            "threshold": 0.5,
+            "is_fraud": fraud_prediction,
             "probability": fraud_probability,
             "model_version": (app.state.model_version or None)
             and app.state.model_version.version,
