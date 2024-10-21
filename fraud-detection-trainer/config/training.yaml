@@ -1,0 +1,9 @@
+job:
+  kind: train
+  configuration:
+    data_path: "data/data.csv"
+    classifier:
+      model_type: "sklearn.linear_model.SGDClassifier"
+      params:
+        "loss": "log_loss"
+        "random_state": 42

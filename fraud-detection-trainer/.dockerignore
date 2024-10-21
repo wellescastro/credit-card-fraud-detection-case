@@ -1,0 +1,17 @@
+# Exclude virtual environments
+.venv/
+env/
+venv/
+
+# Exclude cache and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+
+# Exclude version control
+.git/

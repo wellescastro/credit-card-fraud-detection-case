@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: mlflow.Dockerfile
+    container_name: mlflow_fraud_models
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    command: >
+      mlflow server 
+      --backend-store-uri 
+      sqlite:///mlflow.db 
+      --serve-artifacts
+      --artifacts-destination /data/artifacts
+      --host 0.0.0.0
+      --port 5000
+    healthcheck:
+      test: curl http://127.0.0.1:5000/ -f -s -o /dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 1
+
+  fraud_detection_trainer:
+    build:
+      context: ./fraud-detection-trainer
+      dockerfile: Dockerfile
+    container_name: fraud_detection_trainer
+    volumes:
+      - ./fraud-detection-trainer/config:/app/config
+      - ./fraud-detection-trainer/data:/app/data
+      - ./package_repository:/app/package_repository
+    environment:
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    command: >
+      sh -c "
+        rm -rf dist/ &&
+        uv build --no-sources &&
+        cp dist/*.whl /app/package_repository/ &&
+        uv run train --config_path config/training.yaml
+      "
+
+  fraud_detection_server:
+    build:
+      context: ./fraud-detection-server/
+      dockerfile: Dockerfile
+    container_name: fraud_detection_server
+    ports:
+      - "8000:8000"
+    environment:
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    depends_on:
+      fraud_detection_trainer:
+        condition: service_completed_successfully
+    volumes:
+      - ./package_repository:/app/package_repository
