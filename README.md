@@ -1,4 +1,4 @@
-# Fraud Detection Case Study
+# Credit Card Fraud Detection Case Study
 
 This project implements a fraud detection system using MLflow for model tracking and management, along with separate services for model training and serving.
 
